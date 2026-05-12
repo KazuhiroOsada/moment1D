@@ -1,0 +1,9 @@
+.DS_Store
+.vscode/
+__pycache__/
+
+CMakeLists.txt
+build/*
+
+results/
+figures/
