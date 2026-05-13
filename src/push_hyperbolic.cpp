@@ -12,9 +12,8 @@ void push_moment_rk2(core::Species& species, const double dt) {
     Kokkos::deep_copy(rk_temp, U);
 
     Kokkos::parallel_for("compute_flux_at_current_step", Kokkos::RangePolicy<>(core::lb - 1, core::ub), KOKKOS_LAMBDA(int hx) {
-        core::MomentArray UL_local, UR_local, F_local;
-        moment_flux::reconstruct_moment_muscl(U, hx, UL_local, UR_local);
-        moment_flux::compute_moment_flux_hll(UL_local, UR_local, F_local);
+        const auto [UL, UR] = moment_flux::reconstruct_moment_muscl(U, hx);
+        const core::MomentArray F_local = moment_flux::compute_moment_flux_hll(UL, UR);
         for (int var = 0; var < core::N_MOMENT; ++var) {
             F(var, hx) = F_local[var];
         }
@@ -27,9 +26,8 @@ void push_moment_rk2(core::Species& species, const double dt) {
     });
 
     Kokkos::parallel_for("compute_flux_at_half_step", Kokkos::RangePolicy<>(core::lb - 1, core::ub), KOKKOS_LAMBDA(int hx) {
-        core::MomentArray UL_local, UR_local, F_local;
-        moment_flux::reconstruct_moment_muscl(rk_temp, hx, UL_local, UR_local);
-        moment_flux::compute_moment_flux_hll(UL_local, UR_local, F_local);
+        const auto [UL, UR] = moment_flux::reconstruct_moment_muscl(rk_temp, hx);
+        const core::MomentArray F_local = moment_flux::compute_moment_flux_hll(UL, UR);
         for (int var = 0; var < core::N_MOMENT; ++var) {
             F(var, hx) = F_local[var];
         }

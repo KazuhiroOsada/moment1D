@@ -17,20 +17,18 @@ double minmod(const double a, const double b) {
 }
 
 KOKKOS_INLINE_FUNCTION
-void reconstruct_moment_muscl(const Kokkos::View<double**>& U, int hx,
-                              core::MomentArray& UL, core::MomentArray& UR) {
-    core::MomentArray prim_im1, prim_i, prim_ip1, prim_ip2;
+Kokkos::pair<core::MomentArray, core::MomentArray> reconstruct_moment_muscl(const Kokkos::View<double**>& U, int hx) {
     core::MomentArray U_im1 = {U(core::RHO, hx - 1), U(core::MX, hx - 1), U(core::MY, hx - 1), U(core::MZ, hx - 1), U(core::ENE, hx - 1)};
-    prim_im1 = core::get_moment_primitives(U_im1);
+    core::MomentArray prim_im1 = core::get_moment_primitives(U_im1);
 
     core::MomentArray U_i = {U(core::RHO, hx), U(core::MX, hx), U(core::MY, hx), U(core::MZ, hx), U(core::ENE, hx)};
-    prim_i = core::get_moment_primitives(U_i);
+    core::MomentArray prim_i = core::get_moment_primitives(U_i);
 
     core::MomentArray U_ip1 = {U(core::RHO, hx + 1), U(core::MX, hx + 1), U(core::MY, hx + 1), U(core::MZ, hx + 1), U(core::ENE, hx + 1)};
-    prim_ip1 = core::get_moment_primitives(U_ip1);
+    core::MomentArray prim_ip1 = core::get_moment_primitives(U_ip1);
 
     core::MomentArray U_ip2 = {U(core::RHO, hx + 2), U(core::MX, hx + 2), U(core::MY, hx + 2), U(core::MZ, hx + 2), U(core::ENE, hx + 2)};
-    prim_ip2 = core::get_moment_primitives(U_ip2);
+    core::MomentArray prim_ip2 = core::get_moment_primitives(U_ip2);
 
     core::MomentArray prim_L, prim_R;
     for (int var = 0; var < core::N_MOMENT; ++var) {
@@ -40,16 +38,16 @@ void reconstruct_moment_muscl(const Kokkos::View<double**>& U, int hx,
         prim_R[var] = prim_ip1[var] - 0.5 * slope_R;
     }
 
-    UL = core::get_moment_conservatives(prim_L);
-    UR = core::get_moment_conservatives(prim_R);
+    core::MomentArray UL = core::get_moment_conservatives(prim_L);
+    core::MomentArray UR = core::get_moment_conservatives(prim_R);
+    return Kokkos::make_pair(UL, UR);
 }
 
 KOKKOS_INLINE_FUNCTION
-void compute_moment_flux_hll(const core::MomentArray& UL, const core::MomentArray& UR, core::MomentArray& F) {
+core::MomentArray compute_moment_flux_hll(const core::MomentArray& UL, const core::MomentArray& UR) {
     // compute primitives
-    core::MomentArray UprimL, UprimR;
-    UprimL = core::get_moment_primitives(UL);
-    UprimR = core::get_moment_primitives(UR);
+    core::MomentArray UprimL = core::get_moment_primitives(UL);
+    core::MomentArray UprimR = core::get_moment_primitives(UR);
     const double rhoL = UprimL[core::RHO];
     const double uxL = UprimL[core::UX];
     const double pL = UprimL[core::PRS];
@@ -64,14 +62,15 @@ void compute_moment_flux_hll(const core::MomentArray& UL, const core::MomentArra
     double SR = Kokkos::fmax(Kokkos::fmax(uxL + cL, uxR + cR), 0.0);
 
     // compute the fluxes for left and right states
-    core::MomentArray FL, FR;
-    FL = core::get_moment_flux(UL);
-    FR = core::get_moment_flux(UR);
+    core::MomentArray FL = core::get_moment_flux(UL);
+    core::MomentArray FR = core::get_moment_flux(UR);
 
+    core::MomentArray F;
     // compute the HLL flux
     for (int var = 0; var < core::N_MOMENT; ++var) {
         F[var] = (SR * FL[var] - SL * FR[var] + SL * SR * (UR[var] - UL[var])) / (SR - SL);
     }
+    return F;
 }
 
 } // namespace moment_flux

@@ -47,8 +47,7 @@ bool test_reconstruct_muscl_limited_linear() {
     }
     Kokkos::deep_copy(U, U_h);
 
-    core::MomentArray UL, UR;
-    moment_flux::reconstruct_moment_muscl(U, 2, UL, UR);
+    const auto [UL, UR] = moment_flux::reconstruct_moment_muscl(U, 2);
 
     const double rho_mid = 1.0 + 0.1 * 2.5;
     const double ux_mid = 0.2 + 0.01 * 2.5;
@@ -74,9 +73,8 @@ bool test_reconstruct_muscl_limited_linear() {
 bool test_compute_flux_hll_equal_states() {
     const core::MomentArray U = conservative_from_primitive(1.3, 0.2, -0.1, 0.05, 0.9);
 
-    core::MomentArray F_hll, F_local;
-    moment_flux::compute_moment_flux_hll(U, U, F_hll);
-    F_local = core::get_moment_flux(U);
+    const core::MomentArray F_hll = moment_flux::compute_moment_flux_hll(U, U);
+    const core::MomentArray F_local = core::get_moment_flux(U);
     return expect_array_close(F_hll, F_local, "compute_flux_hll equal-state consistency");
 }
 
@@ -84,9 +82,8 @@ bool test_compute_flux_hll_supersonic_right_returns_left_flux() {
     const core::MomentArray UL = conservative_from_primitive(1.0, 4.0, 0.0, 0.0, 0.4);
     const core::MomentArray UR = conservative_from_primitive(0.8, 3.5, 0.0, 0.0, 0.3);
 
-    core::MomentArray F_hll, FL;
-    moment_flux::compute_moment_flux_hll(UL, UR, F_hll);
-    FL = core::get_moment_flux(UL);
+    const core::MomentArray F_hll = moment_flux::compute_moment_flux_hll(UL, UR);
+    const core::MomentArray FL = core::get_moment_flux(UL);
     return expect_array_close(F_hll, FL, "compute_flux_hll right-going supersonic");
 }
 
