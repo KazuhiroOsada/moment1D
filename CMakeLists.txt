@@ -46,6 +46,7 @@ set(APPS
 # ---- Tests ----
 set (TESTS
     test_moment_flux_solver
+    test_Vector3D
 )
 
 foreach(app ${APPS})
