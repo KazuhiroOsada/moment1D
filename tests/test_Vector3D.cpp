@@ -77,6 +77,20 @@ bool test_projected_vector_degenerate_direction() {
     return expect_vector_close(actual, expected, "projected_vector degenerate direction");
 }
 
+bool test_unit_vector_regular_case() {
+    const core::Vector3D v{3.0, 4.0, 0.0};
+    const core::Vector3D expected{0.6, 0.8, 0.0};
+    const core::Vector3D actual = core::unit_vector(v);
+    return expect_vector_close(actual, expected, "unit_vector regular case");
+}
+
+bool test_unit_vector_degenerate_case() {
+    const core::Vector3D tiny{1e-13, -1e-13, 1e-13}; // norm < 1e-12 threshold
+    const core::Vector3D expected{0.0, 0.0, 0.0};
+    const core::Vector3D actual = core::unit_vector(tiny);
+    return expect_vector_close(actual, expected, "unit_vector degenerate case");
+}
+
 } // namespace
 
 int main() {
@@ -88,6 +102,8 @@ int main() {
         ok = test_cross_product() && ok;
         ok = test_projected_vector_regular_case() && ok;
         ok = test_projected_vector_degenerate_direction() && ok;
+        ok = test_unit_vector_regular_case() && ok;
+        ok = test_unit_vector_degenerate_case() && ok;
     }
     Kokkos::finalize();
 

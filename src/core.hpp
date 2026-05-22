@@ -26,7 +26,7 @@ constexpr int ENE = 4;
 constexpr int UX = 1;
 constexpr int UY = 2;
 constexpr int UZ = 3;
-constexpr int PRS = 4;
+constexpr int P = 4;
 
 const double gamma = 1.4;
 
@@ -61,7 +61,7 @@ MomentArray get_moment_conservatives(const MomentArray& Uprim) {
     const double ux = Uprim[UX];
     const double uy = Uprim[UY];
     const double uz = Uprim[UZ];
-    const double p = Uprim[PRS];
+    const double p = Uprim[P    ];
     double kinetic = 0.5 * rho * (ux*ux + uy*uy + uz*uz);
 
     return MomentArray{rho, rho * ux, rho * uy, rho * uz, p / (core::gamma - 1.0) + kinetic};
@@ -77,7 +77,7 @@ MomentArray get_moment_flux(const MomentArray& U) {
     const double rho_uz = U[MZ];
     const double energy = U[ENE];
     const double ux = Uprim[UX];
-    const double p = Uprim[PRS];
+    const double p = Uprim[P    ];
 
     return MomentArray{rho * ux, rho_ux * ux + p, rho_uy * ux, rho_uz * ux, (energy + p) * ux};
 }
@@ -150,6 +150,15 @@ Vector3D cross_product(const Vector3D& a, const Vector3D& b) {
         a.vz * b.vx - a.vx * b.vz,
         a.vx * b.vy - a.vy * b.vx
     };
+}
+
+KOKKOS_INLINE_FUNCTION
+Vector3D unit_vector(const Vector3D& v) {
+    double norm = Kokkos::sqrt(dot_product(v, v));
+    if (norm < 1e-12) {
+        return Vector3D{0.0, 0.0, 0.0};
+    }
+    return v * (1.0 / norm);
 }
 
 KOKKOS_INLINE_FUNCTION
