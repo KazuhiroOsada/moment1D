@@ -56,7 +56,7 @@ void diag_moment(const core::Species& species, const std::string& name, const in
         ux[i] = Uprim_cell[core::UX];
         uy[i] = Uprim_cell[core::UY];
         uz[i] = Uprim_cell[core::UZ];
-        p[i] = Uprim_cell[core::PRS];
+        p[i] = Uprim_cell[core::P];
     }
 
     auto write_vec = [&](const std::vector<double>& v) {

@@ -50,10 +50,10 @@ core::MomentArray compute_moment_flux_hll(const core::MomentArray& UL, const cor
     core::MomentArray UprimR = core::get_moment_primitives(UR);
     const double rhoL = UprimL[core::RHO];
     const double uxL = UprimL[core::UX];
-    const double pL = UprimL[core::PRS];
+    const double pL = UprimL[core::P];
     const double rhoR = UprimR[core::RHO];
     const double uxR = UprimR[core::UX];
-    const double pR = UprimR[core::PRS];
+    const double pR = UprimR[core::P];
 
     // compute the propagation speeds
     double cL = Kokkos::sqrt(core::gamma * pL / rhoL);
