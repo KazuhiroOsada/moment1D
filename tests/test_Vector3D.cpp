@@ -35,6 +35,7 @@ bool test_vector_add_sub_mul() {
     ok = expect_vector_close(a + b, core::Vector3D{-3.0, 3.5, 4.0}, "operator+") && ok;
     ok = expect_vector_close(a - b, core::Vector3D{5.0, -7.5, 3.0}, "operator-") && ok;
     ok = expect_vector_close(a * 2.5, core::Vector3D{2.5, -5.0, 8.75}, "operator*") && ok;
+    ok = expect_vector_close(2.5 * a, core::Vector3D{2.5, -5.0, 8.75}, "operator* with scalar on left") && ok;
     return ok;
 }
 

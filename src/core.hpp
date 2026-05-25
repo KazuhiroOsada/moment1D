@@ -7,12 +7,12 @@
 namespace core {
 
 // grid parameters
-const int Nx = 1000;
-const int N_ghost = 2;
-const int Nx_total = Nx + 2 * N_ghost;
+constexpr int Nx = 1000;
+constexpr int N_ghost = 2;
+constexpr int Nx_total = Nx + 2 * N_ghost;
 // [lb, ub) are the indices of the physical cells
-const int lb = N_ghost;
-const int ub = N_ghost + Nx;
+constexpr int lb = N_ghost;
+constexpr int ub = N_ghost + Nx;
 
 // moment
 constexpr int N_MOMENT = 5;
@@ -28,7 +28,7 @@ constexpr int UY = 2;
 constexpr int UZ = 3;
 constexpr int P = 4;
 
-const double gamma = 1.4;
+constexpr double gamma = 1.4;
 
 using MomentArray = Kokkos::Array<double, N_MOMENT>;
 
@@ -77,7 +77,7 @@ MomentArray get_moment_flux(const MomentArray& U) {
     const double rho_uz = U[MZ];
     const double energy = U[ENE];
     const double ux = Uprim[UX];
-    const double p = Uprim[P    ];
+    const double p = Uprim[P];
 
     return MomentArray{rho * ux, rho_ux * ux + p, rho_uy * ux, rho_uz * ux, (energy + p) * ux};
 }
@@ -92,9 +92,9 @@ constexpr int BX = 3;
 constexpr int BY = 4;
 constexpr int BZ = 5;
 
-const double c = 20; // speed of light
-const double epsilon0 = 1.0; // vacuum permittivity
-const double mu0 = 1.0 / (epsilon0 * c * c); // vacuum permeability
+constexpr double c = 20; // speed of light
+constexpr double epsilon0 = 1.0; // vacuum permittivity
+constexpr double mu0 = 1.0 / (epsilon0 * c * c); // vacuum permeability
 
 inline Kokkos::View<double**> U_em; // (N_FIELD, Nx_total)
 inline Kokkos::View<double**> F_em; // (N_FIELD, Nx_total - 1)
@@ -137,6 +137,11 @@ struct Vector3D {
         return Vector3D{vx * scalar, vy * scalar, vz * scalar};
     }
 };
+
+KOKKOS_INLINE_FUNCTION
+Vector3D operator*(double scalar, const Vector3D& v) {
+    return v * scalar;
+}
 
 KOKKOS_INLINE_FUNCTION
 double dot_product(const Vector3D& a, const Vector3D& b) {
