@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
         const double omega_force = 2.0;
 
         const double dt = 0.01;
-        int const max_iters = 5001;
+        int const max_iters = 10001;
         int const diag_interval = 50;
         diag::write_parameters("plasma_wave_beach", dt, max_iters, diag_interval);
 
@@ -56,10 +56,10 @@ int main(int argc, char* argv[]) {
             pushH::push_field_rk2(dt);
             pushS::push_source<1>(species, core::U_em, dt/2);
 
-            for (int ix = 0; ix < core::lb + 1; ++ix) {
+            Kokkos::parallel_for("apply_forcing", Kokkos::RangePolicy<>(0, core::lb + 1), KOKKOS_LAMBDA(int ix) {
                 U_em(core::EY, ix) = E0 * Kokkos::sin(omega_force * (it * dt - ix / core::c));
                 U_em(core::BZ, ix) = B0 * Kokkos::sin(omega_force * (it * dt - ix / core::c));
-            }
+            });
         }
         pushH::rk_temp_moment = Kokkos::View<double**>();
         pushH::rk_temp_field = Kokkos::View<double**>();
