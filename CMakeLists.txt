@@ -42,6 +42,7 @@ set(APPS
     em_wave
     shock_tube
     plasma_oscillation
+    plasma_wave_beach
 )
 
 # ---- Tests ----
