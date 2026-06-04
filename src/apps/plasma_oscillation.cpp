@@ -8,6 +8,7 @@ int main(int argc, char* argv[]) {
     {
         core::Species electrons(1.0, -1.0);
         core::U_em = Kokkos::View<double**>("U_em", core::N_FIELD, core::Nx_total);
+        auto U_em = core::U_em;
 
         // uniform Ex and stationary electrons
         Kokkos::parallel_for("initialize", core::Nx_total, KOKKOS_LAMBDA(int ix) {
@@ -17,17 +18,17 @@ int main(int argc, char* argv[]) {
             electrons.U(core::MZ, ix) = 0.0; // momentum z
             electrons.U(core::ENE, ix) = 0.0; // energy
 
-            core::U_em(core::EX, ix) = 1.0; // uniform electric field
-            core::U_em(core::EY, ix) = 0.0;
-            core::U_em(core::EZ, ix) = 0.0;
-            core::U_em(core::BX, ix) = 0.0;
-            core::U_em(core::BY, ix) = 0.0;
-            core::U_em(core::BZ, ix) = 0.0;
+            U_em(core::EX, ix) = 1.0; // uniform electric field
+            U_em(core::EY, ix) = 0.0;
+            U_em(core::EZ, ix) = 0.0;
+            U_em(core::BX, ix) = 0.0;
+            U_em(core::BY, ix) = 0.0;
+            U_em(core::BZ, ix) = 0.0;
         });
 
         Kokkos::fence();
 
-        const double dt = 10;
+        const double dt = 0.01;
         int max_iters = 5001;
         int diag_interval = 10;
         diag::write_parameters("plasma_oscillation", dt, max_iters, diag_interval);
