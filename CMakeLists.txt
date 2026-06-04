@@ -41,12 +41,14 @@ set(PROJECT_SOURCES
 set(APPS
     em_wave
     shock_tube
+    plasma_oscillation
 )
 
 # ---- Tests ----
 set (TESTS
     test_moment_flux_solver
     test_Vector3D
+    test_push_source
 )
 
 foreach(app ${APPS})
