@@ -123,10 +123,12 @@ void push_source_locally(Kokkos::Array<core::MomentArray, N_SPECIES>& U_sp_local
         Vector3D J_bar = compute_J_s_bar(J_n_sp[is], E_bar, B, omega_p_sq_sp[is], Omega_c_sp[is], dt);
         Vector3D J_new = 2.0 * J_bar - J_n_sp[is];
 
-        const double m_over_q = m_sp[is] / q_sp[is];
-        U_sp_local[is][core::MX] = m_over_q * J_new.vx;
-        U_sp_local[is][core::MY] = m_over_q * J_new.vy;
-        U_sp_local[is][core::MZ] = m_over_q * J_new.vz;
+        core::MomentArray U_prim_new = core::get_moment_primitives(U_sp_local[is]);
+        const double j_to_v = m_sp[is] / q_sp[is] / U_prim_new[core::RHO];
+        U_prim_new[core::UX] = J_new.vx * j_to_v;
+        U_prim_new[core::UY] = J_new.vy * j_to_v;
+        U_prim_new[core::UZ] = J_new.vz * j_to_v;
+        U_sp_local[is] = core::get_moment_conservatives(U_prim_new);
     }
 }
 
@@ -149,6 +151,7 @@ void push_source(const Kokkos::Array<core::Species, N_SPECIES>& species_array, K
             species[is].U(core::MX, ix) = U_sp_local[is][core::MX];
             species[is].U(core::MY, ix) = U_sp_local[is][core::MY];
             species[is].U(core::MZ, ix) = U_sp_local[is][core::MZ];
+            species[is].U(core::ENE, ix) = U_sp_local[is][core::ENE];
         }
         U_em(core::EX, ix) = U_em_local[core::EX];
         U_em(core::EY, ix) = U_em_local[core::EY];
