@@ -61,7 +61,7 @@ MomentArray get_moment_conservatives(const MomentArray& Uprim) {
     const double ux = Uprim[UX];
     const double uy = Uprim[UY];
     const double uz = Uprim[UZ];
-    const double p = Uprim[P    ];
+    const double p = Uprim[P];
     double kinetic = 0.5 * rho * (ux*ux + uy*uy + uz*uz);
 
     return MomentArray{rho, rho * ux, rho * uy, rho * uz, p / (core::gamma - 1.0) + kinetic};
